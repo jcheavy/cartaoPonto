@@ -1,16 +1,35 @@
 package com.jean.ponto.entities;
 
+
+import com.jean.ponto.enums.TipoEnum;
 import java.io.Serializable;
 import java.util.Date;
 
-import com.jean.ponto.enums.TipoEnum;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
+
+
+@Entity
+@Table(name = "lancamento")
 public class Lancamento implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 
 	
-	private long id;
+	private Long id;
 	private Date data;
 	private String descricao;
 	private String localizacao;
@@ -18,19 +37,22 @@ public class Lancamento implements Serializable{
 	private Date dataAtualizacao;
 	private TipoEnum tipo;
 	private Funcionario funcionario;
-	
+
 	public Lancamento() {
-		
 	}
 
-	public long getId() {
+	@Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "data", nullable = false)
 	public Date getData() {
 		return data;
 	}
@@ -39,6 +61,7 @@ public class Lancamento implements Serializable{
 		this.data = data;
 	}
 
+	@Column(name = "descricao", nullable = true)
 	public String getDescricao() {
 		return descricao;
 	}
@@ -46,7 +69,8 @@ public class Lancamento implements Serializable{
 	public void setDescricao(String descricao) {
 		this.descricao = descricao;
 	}
-
+	
+	@Column(name = "localizacao", nullable = true)
 	public String getLocalizacao() {
 		return localizacao;
 	}
@@ -55,6 +79,7 @@ public class Lancamento implements Serializable{
 		this.localizacao = localizacao;
 	}
 
+	@Column(name = "data_criacao", nullable = false)
 	public Date getDataCriacao() {
 		return dataCriacao;
 	}
@@ -63,6 +88,7 @@ public class Lancamento implements Serializable{
 		this.dataCriacao = dataCriacao;
 	}
 
+	@Column(name = "data_atualizacao", nullable = false)
 	public Date getDataAtualizacao() {
 		return dataAtualizacao;
 	}
@@ -71,6 +97,8 @@ public class Lancamento implements Serializable{
 		this.dataAtualizacao = dataAtualizacao;
 	}
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "tipo", nullable = false)
 	public TipoEnum getTipo() {
 		return tipo;
 	}
@@ -79,6 +107,7 @@ public class Lancamento implements Serializable{
 		this.tipo = tipo;
 	}
 
+	@ManyToOne(fetch = FetchType.EAGER)
 	public Funcionario getFuncionario() {
 		return funcionario;
 	}
@@ -86,28 +115,18 @@ public class Lancamento implements Serializable{
 	public void setFuncionario(Funcionario funcionario) {
 		this.funcionario = funcionario;
 	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Lancamento other = (Lancamento) obj;
-		if (id != other.id)
-			return false;
-		return true;
-	}
+	
+	@PreUpdate
+    public void preUpdate() {
+        dataAtualizacao = new Date();
+    }
+     
+    @PrePersist
+    public void prePersist() {
+        final Date atual = new Date();
+        dataCriacao = atual;
+        dataAtualizacao = atual;
+    }
 
 	@Override
 	public String toString() {
@@ -115,6 +134,5 @@ public class Lancamento implements Serializable{
 				+ ", dataCriacao=" + dataCriacao + ", dataAtualizacao=" + dataAtualizacao + ", tipo=" + tipo
 				+ ", funcionario=" + funcionario + "]";
 	}
-	
-	
+
 }

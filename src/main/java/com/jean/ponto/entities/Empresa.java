@@ -1,31 +1,48 @@
 package com.jean.ponto.entities;
 
 import java.io.Serializable;
-import java.sql.Date;
+import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "empresa")
 public class Empresa implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	
-	private long id;
+	private Long id;
 	private String razaoSocial;
 	private String cnpj;
 	private Date dataCriacao;
 	private Date dataAtualizacao;
+	private List<Funcionario> funcionarios;
 	
 	public Empresa() {
-		
 	}
 
-	public long getId() {
+	@Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
+	@Column(name = "razao_social", nullable = false)
 	public String getRazaoSocial() {
 		return razaoSocial;
 	}
@@ -34,6 +51,7 @@ public class Empresa implements Serializable {
 		this.razaoSocial = razaoSocial;
 	}
 
+	@Column(name = "cnpj", nullable = false)
 	public String getCnpj() {
 		return cnpj;
 	}
@@ -42,6 +60,7 @@ public class Empresa implements Serializable {
 		this.cnpj = cnpj;
 	}
 
+	@Column(name = "data_criacao", nullable = false)
 	public Date getDataCriacao() {
 		return dataCriacao;
 	}
@@ -50,6 +69,7 @@ public class Empresa implements Serializable {
 		this.dataCriacao = dataCriacao;
 	}
 
+	@Column(name = "data_atualizacao", nullable = false)
 	public Date getDataAtualizacao() {
 		return dataAtualizacao;
 	}
@@ -58,33 +78,32 @@ public class Empresa implements Serializable {
 		this.dataAtualizacao = dataAtualizacao;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
-		return result;
+	@OneToMany(mappedBy = "empresa", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	public List<Funcionario> getFuncionarios() {
+		return funcionarios;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Empresa other = (Empresa) obj;
-		if (id != other.id)
-			return false;
-		return true;
+	public void setFuncionarios(List<Funcionario> funcionarios) {
+		this.funcionarios = funcionarios;
 	}
+	
+	@PreUpdate
+    public void preUpdate() {
+        dataAtualizacao = new Date();
+    }
+     
+    @PrePersist
+    public void prePersist() {
+        final Date atual = new Date();
+        dataCriacao = atual;
+        dataAtualizacao = atual;
+    }
 
 	@Override
 	public String toString() {
 		return "Empresa [id=" + id + ", razaoSocial=" + razaoSocial + ", cnpj=" + cnpj + ", dataCriacao=" + dataCriacao
 				+ ", dataAtualizacao=" + dataAtualizacao + "]";
-	}
+}
 	
 	
 }
